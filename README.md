@@ -5,3 +5,4 @@ Bugs to fix:
 2. On QuickLoading datset, a black circle appears in the left corner
 3. When typing text in explanation by example, lasso disables
 4. Visual appeal
+5. Hover over a highlighted point changes it's size to normal
