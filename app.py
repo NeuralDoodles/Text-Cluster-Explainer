@@ -15,6 +15,7 @@ import heapq
 import openai
 import json
 import pickle
+from nltk.tokenize import sent_tokenize
 
 
 from rake_nltk import Metric, Rake
@@ -44,6 +45,29 @@ chat_history = []
 @app.route("/")
 def home():
     return send_from_directory(app.static_folder, "index.html")
+# Performs selected dimensionality reduction method (reductionMethod) on uploaded data (data), considering selected parameters (perplexity, selectedCol)
+@app.route("/generate-embeddings", methods=["POST"])
+def data():
+    from sentence_transformers import SentenceTransformer
+
+    global X_embedded, df_dr
+    parser = reqparse.RequestParser()
+    parser.add_argument('text', type=str)
+    args = parser.parse_args()
+
+    text = args['text']
+    model = SentenceTransformer('all-mpnet-base-v2')
+
+    
+    sentences = sent_tokenize(text)
+    embeddings = model.encode(text[:5000])
+
+    df = pd.DataFrame(embeddings)
+    df['text'] = text[:5000]
+
+    return df.to_json(orient="split")
+
+
 
 # Performs selected dimensionality reduction method (reductionMethod) on uploaded data (data), considering selected parameters (perplexity, selectedCol)
 @app.route("/upload-data", methods=["POST"])
