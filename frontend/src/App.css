@@ -13,6 +13,7 @@
   }
 }
 
+
 .App-header {
   background-color: #282c34;
   min-height: 100vh;
@@ -147,6 +148,7 @@ body {
 .panel {
   /* background-color: rgb(250, 250, 250);
   border: 1px solid rgb(205, 205, 205);*/
+  font-size: 75%;
   width: 320px;
   height: 100vh;
   padding: 1em;
@@ -384,3 +386,5 @@ th {
 CircularProgress {
   color: rgb(106, 146, 214);
 }
+
+

@@ -16,6 +16,7 @@ import {
   toggleDotDisplay,
   autocheckPoints,
 } from "../d3-rendering/projectionManipulationFunctions.js";
+
 import Tooltip from '@mui/material/Tooltip';
 import Slider from "@mui/material/Slider";
 import CircularProgress from "@mui/material/CircularProgress";
@@ -142,7 +143,7 @@ export const LeftPanel = ({ width, height }) => {
       return (
         <>
           <div className="title">
-            <p>Cluster : Keywords</p>
+            <p>Legend</p>
           </div>
 
           {colorMap.map((info) => {
@@ -473,7 +474,16 @@ export const LeftPanel = ({ width, height }) => {
   return (
     
     <div className="left panel">
-    <h2>Cluster Explainer</h2>
+      <Button
+        variant="light"
+        id="demo-positioned-button"
+        aria-controls={open ? 'demo-positioned-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClickMenu}
+      >
+      <h3>AutoCluster Explainer</h3>
+      </Button>
 
       <Tooltip title={uploadExplanation} arrow>
         <Button  id="toggleButton1" class="btn btn-secondary btn-xs" onClick={(e) => { toggleDiv(e, "upload-div");}}>UPLOAD DATA</Button>
@@ -570,16 +580,7 @@ export const LeftPanel = ({ width, height }) => {
       </div>
       
 
-      <Button
-        id="demo-positioned-button"
-        class="btn btn-secondary btn-xs"
-        aria-controls={open ? 'demo-positioned-menu' : undefined}
-        aria-haspopup="true"
-        aria-expanded={open ? 'true' : undefined}
-        onClick={handleClickMenu}
-      >
-        Quick Load
-      </Button>
+  
       <Menu
         id="demo-positioned-menu"
         aria-labelledby="demo-positioned-button"
@@ -632,7 +633,7 @@ export const LeftPanel = ({ width, height }) => {
       </div>
       </div>
       <div>
-      <h3>AutoCluster</h3>
+      
       </div>
       <div className="sliderBlock">
       <p>Few</p><Slider

@@ -47,7 +47,7 @@ def home():
     return send_from_directory(app.static_folder, "index.html")
 # Performs selected dimensionality reduction method (reductionMethod) on uploaded data (data), considering selected parameters (perplexity, selectedCol)
 @app.route("/generate-embeddings", methods=["POST"])
-def data():
+def generate():
     from sentence_transformers import SentenceTransformer
 
     global X_embedded, df_dr

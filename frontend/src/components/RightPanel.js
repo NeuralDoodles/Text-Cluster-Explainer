@@ -278,6 +278,7 @@ const handleTextClick = (e) => {
 
 
   return (
+    
     <div className="right panel">
       <LabelSearch />
       <hr />
@@ -406,3 +407,4 @@ const handleTextClick = (e) => {
     </div>
   );
 };
+
