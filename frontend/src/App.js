@@ -6,6 +6,8 @@ import { LeftPanel } from "./components/LeftPanel.js";
 // import classNames from "classnames/bind";
 import { Header } from "./components/Navbar.js";
 
+// testing
+
 function App() {
   let width = window.innerWidth - 720;
   let height = window.innerHeight - 50;
