@@ -6,6 +6,8 @@ import Button from "react-bootstrap/Button";
 import styled, { keyframes } from "styled-components";
 import Slider from "@mui/material/Slider";
 import axios from "axios";
+import Menu from '@mui/material/Menu';
+import MenuItem from '@mui/material/MenuItem';
 
 
 
@@ -118,7 +120,49 @@ export const RightPanel = ({
   const [promptValue, setPromptValue] = useState(prompt);
   const associatedWordsExplanation =
     "We run a linear classifier on points in the circled area versus points not in the circled area. We return the top 30 words that are positively and negatively associated with being in the circled area";
+  
+    const toggleExpDiv = (e, id, txt) => {
+      ["cloud-div","new-text","natural-language-explanation","explore-selection"].map(id => document.getElementById(id).style.display = "none")
 
+      document.getElementById('explanation-type').textContent = txt
+      var x = document.getElementById(id);
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+
+    const toggleDiv = (e, id, txt) => {
+      var x = document.getElementById(id);
+      if (x.style.display === "none") {
+        x.style.display = "block";
+      } else {
+        x.style.display = "none";
+      }
+    }
+
+
+    window.onload = function(){
+      ["new-text","natural-language-explanation","explore-selection"].map(id => document.getElementById(id).style.display = "none")
+
+      document.getElementById('toggleButton1').click();
+      //document.getElementById('toggleButton2').click();
+      document.getElementById('toggleButton3').click();
+    }
+
+  const [anchorEl, setAnchorEl] = useState(null);
+  const open = Boolean(anchorEl);
+  const handleClickMenu = (event) => {
+    setAnchorEl(event.currentTarget);
+  };
+  
+
+  const handleClose = (e,id, txt) => {
+    if (id !=""){toggleExpDiv(e, id, txt)}
+    setAnchorEl(null);
+  }
+  
   // Generates table items if there are selected points
   useEffect(() => {
     if (selectedPoints.length > 0) {
@@ -232,7 +276,7 @@ export const RightPanel = ({
 
     console.log(promptValue);
 
-    document.querySelector("#promptTextArea").value = "";
+    //document.querySelector("#promptTextArea").value = "";
   };
 
   const handleChangePrompt = (e) => {
@@ -249,6 +293,8 @@ const handleTextClick = (e) => {
   axios
     .post(localDevURL + "test-projection", {
       text: test_text,
+      dataset: document.getElementById('dataset').textContent
+
     })
     .then((response) => {
       drawTestProjection(response.data.data)
@@ -286,6 +332,7 @@ const handleTextClick = (e) => {
         <p className="title">AutoCluster Explanation</p>
         <div className="autoExplanationslider">
           <Slider
+            id="explanation-slider"
             aria-label="AutoCluster Label"
             value={autoClusterLabel}
             valueLabelDisplay="auto"
@@ -297,8 +344,40 @@ const handleTextClick = (e) => {
           />
       </div></div>
       <hr />
-      <div id="new-text">
-      <p className="title">Explanation by Example</p>
+
+      <Button
+        variant="light"
+        id="menu-buttion-1"
+        aria-controls={open ? 'demo-positioned-menu' : undefined}
+        aria-haspopup="true"
+        aria-expanded={open ? 'true' : undefined}
+        onClick={handleClickMenu}
+      >
+      <h5 id="explanation-type">Explanation as Keywords</h5>
+      </Button>
+      <Menu
+        id="menu-1"
+        aria-labelledby="demo-positioned-button"
+        anchorEl={anchorEl}
+        open={open}
+        onClose={handleClose}
+        anchorOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+        transformOrigin={{
+          vertical: 'top',
+          horizontal: 'left',
+        }}
+      >
+        <MenuItem onClick={(e) => { handleClose(e,  "cloud-div", "Explanation as Keywords");}}>Explanation as Keywords </MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "new-text", "Explanation by Example");}}> Explanation by Example </MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "natural-language-explanation", "Explanation by Conversation");}}> Explanation by Conversation</MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "explore-selection", "Explore Selection");}}> Explore Selection</MenuItem>
+
+      </Menu>
+      <div id="new-text" >
+
 
       <Form.Control
             className="form-control"
@@ -316,12 +395,8 @@ const handleTextClick = (e) => {
             Show
           </Button>
           </div>
-          <hr />
 
-      <div className="title">
-        <p>Explanation as keywords</p>
-        <InfoTooltip text={associatedWordsExplanation} />
-      </div>
+
       <div id="cloud-div">
         <div id="positive-cloud-div">
           {wordsLoading ? (
@@ -333,10 +408,9 @@ const handleTextClick = (e) => {
           ) : null}
         </div>
       </div>
-      <hr />
+
 
       <div id="natural-language-explanation">
-        <p className="title">Explanation by Interaction</p>
         <Form.Group>
           <Form.Control
             className="form-control"
@@ -382,7 +456,8 @@ const handleTextClick = (e) => {
             //onChange={handleChangePrompt}
           ></Form.Control>
       </div>
-      <hr />
+
+      <div id="explore-selection">
 
       <div id="unique-items-div">
         <p className="title">
@@ -402,6 +477,7 @@ const handleTextClick = (e) => {
           </thead>
           <tbody>{selectedItems}</tbody>
         </Table>
+      </div>
       </div>
       <div className="footerSpacing"></div>
     </div>

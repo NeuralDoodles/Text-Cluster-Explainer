@@ -18,6 +18,7 @@ let database = {}; // Database of projected points
 let colorMap = {}; // Map of label --> color
 let globalOpacity = 0.5; // Default opacity
 let globalDotSize = 2; // Default dot size
+let dataset = ""
 
 // Clears SVG in the center panel when new data is uploaded
 function clearSVG() {
@@ -53,8 +54,8 @@ function drawProjection(width, height, uploadedData) {
   // Re-setting database and colorMap and using uploaded data to draw when data has been loaded
   database = {};
   colorMap = {};
-
-  if (data[0].length === 5) {
+  console.log(data[0])
+  if (data[0].length === 6) {
     makeColorMap(data);
   }
 
@@ -72,10 +73,10 @@ function drawProjection(width, height, uploadedData) {
 
   // Draw circles
   svg
-    .append("g")
     .selectAll("circle")
     .data(data)
     .enter()
+    .append("g")
     .append("circle")
     .attr("r", globalDotSize)
     .attr("opacity", globalOpacity)
@@ -95,8 +96,8 @@ function drawProjection(width, height, uploadedData) {
       return centerY;
     })
     .attr("fill", (d) => {
-      if (d.length === 6) {
-        return assignColor(d[3], d[5]);
+      if (d.length === 7) {
+        return assignColor(d[3], d[6]);
       } else {
         database[d[d.length - 1]].originalColor = "black";
         return "black";
@@ -106,13 +107,14 @@ function drawProjection(width, height, uploadedData) {
   colorMap.x = x
   colorMap.y = y
   console.log(colorMap,x,y)
-  svg.append("g");
+  //svg.append("g");
+  showKeywords(colorMap)
   return colorMap;
 }
 
 function drawTestProjection(data) {
-
-  var svg2 = d3.select("#containerSVG")
+  d3.select("#test_text").remove();
+  var svg2 = d3.select("#containerSVG").raise()
   var x = colorMap.x 
   var y = colorMap.y
   console.log(x,y)
@@ -126,22 +128,16 @@ function drawTestProjection(data) {
     .append("circle")
     .attr("r", 0)
     .attr("opacity", 1)
-    .attr("id", (d) => {
-      
-      database[id] = { label: d[2], keyword:d[4]};
-      return id;
-    })
+    .attr("id", id)
     .attr("cx", (d) => {
       let centerX = x(+d[0]);
-      database[id].cx = centerX;
       return centerX;
     })
     .attr("cy", (d) => {
       let centerY = y(+d[1]);
-      database[id].cy = centerY;
       return centerY;
     })
-    .attr("fill", 'green')
+    .attr("fill", 'green').attr("class", "non-brushed")
     .transition().duration(200).attr("r", 10)
 
 }
@@ -149,6 +145,8 @@ function drawTestProjection(data) {
 function makeColorMap(data) {
   let uniqueCategories = new Set();
   let uniqueKeywords = new Set();
+  let uniqueClusterCentroids = new Set();
+
 
   for (let item of data) {
     
@@ -157,6 +155,7 @@ function makeColorMap(data) {
     } else {
       uniqueCategories.add(item[3]);
       uniqueKeywords.add(item[4]);
+      uniqueClusterCentroids.add(item[5]);
     }
   }
   
@@ -164,9 +163,10 @@ function makeColorMap(data) {
 
   let categoriesArray = Array.from(uniqueCategories);
   let keywordsArray = Array.from(uniqueKeywords);
-  console.log(categoriesArray ,keywordsArray)
+  let centroidsArray = Array.from(uniqueClusterCentroids);
+
   for (let i = 0; i < categoriesArray.length; i++) {
-    colorMap[categoriesArray[i]] = [COLORS[i % 11], keywordsArray[i]]  ;
+    colorMap[categoriesArray[i]] = [COLORS[i % 11], keywordsArray[i], JSON.parse(centroidsArray[i])] ;
   }
   
 }
@@ -347,6 +347,10 @@ function changeDotSize(dotSize) {
   globalDotSize = dotSize;
 }
 
+function changeDatset(name) {
+  dataset = name;
+}
+
 function highlightLabel(event) {
   // Reset previously highlighted labels
   d3.selectAll(".brushed").transition().duration(200)
@@ -362,7 +366,7 @@ function highlightLabel(event) {
       .attr("fill", "green")
       .attr("class", "brushed selected")
       .attr("opacity", globalOpacity + 0.5)
-      .attr("r", globalDotSize + 4);
+      .attr("r", globalDotSize*3);
   }
 }
 
@@ -448,7 +452,7 @@ function drawToolTip(id, width) {
   d3.select("#" + id)
     .attr("fill", "green")
     .attr("opacity", globalOpacity + 0.5)
-    .attr("r", globalDotSize + 2);
+    .attr("r", globalDotSize*3);
 
   pointLabelContainer
     .append("text")
@@ -578,9 +582,9 @@ function eraseToolTip(id) {
     .attr("r", () => {
       switch (POINT_CLASS_NAME) {
         case "brushed":
-          return globalDotSize;
+          return globalDotSize*5;
         case "brushed selected":
-          return globalDotSize + 2;
+          return globalDotSize*5;
         default:
           return globalDotSize;
       }
@@ -646,6 +650,35 @@ function clearSelectedMatchingPoints() {
 
 
 
+function showKeywords(colorMap) {
+  d3.selectAll("#keywords-proj").remove()
+  var svg2 = d3.select("#containerSVG").raise()
+  var x = colorMap.x 
+  var y = colorMap.y
+  let id = "keywords-proj";
+  // Draw circles
+
+  for (let i = 0; i < Object.keys(colorMap).length-2; i++) {
+    console.log(colorMap[i])
+    let array = colorMap[i]
+  
+  svg2
+    .append("text")
+    .attr("opacity", 1)
+    .attr("id", id)
+    .attr("x", x(+array[2][0]))
+    .attr("y", y(+array[2][1]))
+    .attr("fill", 'black')
+    .attr("text-anchor", "middle")
+    .attr("font-weight", 700)
+    .attr("font-size", "0.5em")//.text("hello")
+    .text(array[1])
+
+  }
+}
+
+
+
 export {
   drawProjection,
   drawTestProjection,
@@ -662,4 +695,5 @@ export {
   toggleDotDisplay,
   findMatchingPoints,
   clearSelectedMatchingPoints,
+  changeDatset
 };

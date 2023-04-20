@@ -18,7 +18,7 @@ function drawClouds(words) {
   // d3.select("#neg-placeholder").remove();
 
   var positiveLayout = cloud()
-    .size([400, 300])
+    .size([300, 300])
     .words(
       words.map(function (d) {
         return {

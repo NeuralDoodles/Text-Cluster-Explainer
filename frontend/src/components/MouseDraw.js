@@ -44,8 +44,8 @@ const Line = ({ points, drawing }) => {
       id="lasso"
       d={line(dataCopy)}
       style={{
-        stroke: "blue",
-        strokeWidth: 2,
+        stroke: "black",
+        strokeWidth: 3,
         strokeLinejoin: "round",
         strokeLinecap: "round",
         fill: "rgba(0,100,255,0.05)",
@@ -55,10 +55,11 @@ const Line = ({ points, drawing }) => {
 };
 
 
-const Explanations = () => {
-  
-  const [autoClusterLabel, setautoClusterLabel] =  useState(false);
+
+export const MouseDraw = ({ x, y, width, height }) => {
+  // States and state setters
   const [drawing, setDrawing] = useState(false);
+  const [currentLine, setCurrentLine] = useState({ points: [] });
   const [selectedPoints, setSelectedPoints] = useState([]);
   const [topWords, setTopWords] = useState({
     positiveWord: null,
@@ -72,80 +73,7 @@ const Explanations = () => {
   const [explanation, setExplanation] = useState(
     "Select points to see an explanation"
   );
-
-
-
-  function getExplanationClusterLabel(){
-    console.log(autoClusterLabel)
-    setDrawing(false);
-    // Check if points are in path on mouseup
-    let { brushedPoints, categorizedPoints, selectedLabels } = autocheckPoints(autoClusterLabel);
-
-    // Send brushed points to right panel
-    setSelectedPoints(brushedPoints);
-    
-    if (brushedPoints.length > 0) {
-      // Send categorized points to back for linear classification
-      setWordsLoading(true);
-      axios
-        .post(localDevURL + "categorize-data", {
-          data: JSON.stringify(categorizedPoints),
-        })
-        .then((response) => {
-          console.log("Categorized!", response.data.data);
-          let newTopWords = drawClouds(response.data.data);
-          setWordsLoading(false);
-          setTopWords(newTopWords);
-          // TODO: do things with response
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-      axios
-        .post(localDevURL + "GPT-explanation", {
-          apiKey: keyVal,
-          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
-        })
-        .then((response) => {
-          console.log(response)
-          setExplanation(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }
-
-  // request new explanation when prompt changes
-  useEffect(() => {
-    console.log("KEY:", keyVal);
-    console.log("changedPrompt:", prompt);
-    let { brushedPoints, categorizedPoints, selectedLabels } = checkPoints();
-    if (brushedPoints.length > 0) {
-      axios
-        .post(localDevURL + "GPT-explanation", {
-          apiKey: keyVal,
-          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
-        })
-        .then((response) => {
-          console.log(response);
-          setExplanation(response.data);
-        })
-        .catch((error) => {
-          console.log(error);
-        });
-    }
-  }, [prompt]);
-
-
-}
-
-
-
-export const MouseDraw = ({ x, y, width, height }) => {
-  // States and state setters
-  const [currentLine, setCurrentLine] = useState({ points: [] });
-
+  const [autoClusterLabel, setautoClusterLabel] =  useState(false);
 
 
 
@@ -215,7 +143,47 @@ export const MouseDraw = ({ x, y, width, height }) => {
     }
   }
 
- 
+  function getExplanationClusterLabel(){
+    console.log(autoClusterLabel)
+    setDrawing(false);
+    // Check if points are in path on mouseup
+    let { brushedPoints, categorizedPoints, selectedLabels } = autocheckPoints(autoClusterLabel);
+
+    // Send brushed points to right panel
+    setSelectedPoints(brushedPoints);
+    
+    if (brushedPoints.length > 0) {
+      // Send categorized points to back for linear classification
+      setWordsLoading(true);
+      axios
+        .post(localDevURL + "categorize-data", {
+          data: JSON.stringify(categorizedPoints),
+        })
+        .then((response) => {
+          console.log("Categorized!", response.data.data);
+          let newTopWords = drawClouds(response.data.data);
+          setWordsLoading(false);
+          setTopWords(newTopWords);
+          // TODO: do things with response
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+      axios
+        .post(localDevURL + "GPT-explanation", {
+          apiKey: keyVal,
+          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
+        })
+        .then((response) => {
+          console.log(response)
+          setExplanation(response.data);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }
+
  
 
   function handleMouseOver(e) {
@@ -238,46 +206,30 @@ export const MouseDraw = ({ x, y, width, height }) => {
   }, [mouseMove]);
 
 
-  // request new explanation when text changes
-useEffect(() => {
-  axios
-    .post(localDevURL + "test-projection", {
-      text: test_text,
-    })
-    .then((response) => {
-      console.log(response);
-      // SVG
-      var svg = d3.select("#containerSVG")
-      svg
-        .append("g")
-        .selectAll("circle")
-        .data(response.data.data)
-        .enter()
-        .append("circle")
-        .attr("r", 50)
-        .attr("opacity", 1)
-        .attr("id", 'test-point')
-        .attr("cx", (d) => {
-          let centerX = x(+d[0]);
-          return centerX;
+
+
+  // request new explanation when prompt changes
+  useEffect(() => {
+    console.log("KEY:", keyVal);
+    console.log("changedPrompt:", prompt);
+    let { brushedPoints, categorizedPoints, selectedLabels } = checkPoints();
+    if (brushedPoints.length > 0) {
+      axios
+        .post(localDevURL + "GPT-explanation", {
+          apiKey: keyVal,
+          selectedLabels: JSON.stringify([prompt, ...selectedLabels]),
         })
-        .attr("cy", (d) => {
-          let centerY = y(+d[1]);
-          return centerY;
+        .then((response) => {
+          console.log(response);
+          setExplanation(response.data);
         })
-        .attr("fill", "green")
+        .catch((error) => {
+          console.log(error);
+        });
+    }
+  }, [prompt]);
 
-    })
-    .catch((error) => {
-      console.log(error);
-    });
-}, [test_text]);
-
-  
-
-  
-
-
+ 
 
   return (
     <div className="body">

@@ -48,7 +48,7 @@ svg {
 
   -webkit-user-select: none; /* Safari */
   -ms-user-select: none; /* IE 10 and IE 11 */
-  user-select: none; /* Standard syntax */
+  user-select: none; /* fStandard syntax */
   
 }
 
@@ -233,7 +233,7 @@ select {
   position:fixed;
   right:0;
   overflow: scroll;
-  width:400px;
+  width:300px;
 }
 
 .positive-mark-1 {
@@ -258,11 +258,11 @@ select {
 }
 
 #cloud-div {
-  height: 315px;
+  height: 280px;
   
   display:flex;
   width: 100%;
-  overflow:hidden;
+  overflow:visible;
 }
 
 .placeholder-image {
@@ -272,7 +272,7 @@ select {
 
 #positive-cloud-div {
   margin-right:0.5em;
-  width:100%
+  width:110%
 
 }
 

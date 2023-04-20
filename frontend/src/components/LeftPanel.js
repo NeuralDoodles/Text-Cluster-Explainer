@@ -15,6 +15,7 @@ import {
   changeDotSize,
   toggleDotDisplay,
   autocheckPoints,
+  changeDatset,
 } from "../d3-rendering/projectionManipulationFunctions.js";
 
 import Tooltip from '@mui/material/Tooltip';
@@ -25,6 +26,9 @@ import { library } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckSquare, faSquare } from "@fortawesome/free-solid-svg-icons";
 import neurips from '../datasets/neurips.json';
+import restaurants from '../datasets/restaurants.json';
+import ag_news from '../datasets/ag_news.json';
+import emotion from '../datasets/emotion.json';
 
 
 library.add(faCheckSquare, faSquare);
@@ -39,15 +43,6 @@ const LoadDataCircle = ({ loadingData }) => {
   }
 };
 
-const Header = () => {
-  return (
-    <Navbar bg="dark" variant="dark">
-      <Container>
-        <Navbar.Brand href="#home">Cluster Investigator</Navbar.Brand>
-      </Container>
-    </Navbar>
-  );
-};
 
 const ReductionOptions = ({
   reductionMethod,
@@ -92,6 +87,11 @@ const KeyItem = ({ props }) => {
     setChecked(!checked);
     toggleDotDisplay(!checked, props.label);
     autocheckPoints(props.label);
+    let slider = document.getElementById('explanation-slider')
+    slider.value = props.label;
+    console.log(slider.value)
+    console.log(document.getElementById('explanation-slider'))
+
   };
 
   return (
@@ -142,21 +142,27 @@ export const LeftPanel = ({ width, height }) => {
     if (colorMap.length > 0) {
       return (
         <>
+
+
           <div className="title">
             <p>Legend</p>
           </div>
 
           {colorMap.map((info) => {
+            if ((info[0] !='x') && (info[0] !='y')){ 
+              return (
+                <KeyItem
+                  props={{
+                    label: info[0],
+                    color: info[1][0],
+                    keywords: info[1][1],
+                  }}
+                />
+              );
 
-            return (
-              <KeyItem
-                props={{
-                  label: info[0],
-                  color: info[1][0],
-                  keywords: info[1][1],
-                }}
-              />
-            );
+            }
+
+            
           })}
         </>
       );
@@ -192,12 +198,25 @@ export const LeftPanel = ({ width, height }) => {
 
   const handleClose = (e,name) => {
     setAnchorEl(null);
+    changeDatset(name)
     let loadedData = neurips
-
+    console.log(name)
+    
+    if (name=="restaurants"){
+      console.log(name)
+      loadedData = restaurants
+    }
+    if (name=="ag_news"){
+      console.log(name)
+      loadedData = ag_news
+    }
+    if (name=="emotion"){
+      console.log(name)
+      loadedData = emotion
+    }
+    document.getElementById('dataset').textContent = name;
       clearSVG();
-      setPlottedData(loadedData);
-      let newColorMap = drawProjection(width, height, loadedData);
-      setColorMap(Object.entries(newColorMap));
+
       let req = {
         data: JSON.stringify(loadedData),
       };
@@ -212,7 +231,9 @@ export const LeftPanel = ({ width, height }) => {
           setLoadingData(false);
         });  
     
-    
+      setPlottedData(loadedData);
+      let newColorMap = drawProjection(width, height, loadedData);
+      setColorMap(Object.entries(newColorMap));
 
     //fetch('neurips.json')
     //.then((response) => response.json())
@@ -488,6 +509,8 @@ export const LeftPanel = ({ width, height }) => {
       <Tooltip title={uploadExplanation} arrow>
         <Button  id="toggleButton1" class="btn btn-secondary btn-xs" onClick={(e) => { toggleDiv(e, "upload-div");}}>UPLOAD DATA</Button>
         </Tooltip>
+        <Button  id="toggleButton3" class="btn btn-secondary btn-xs display-btn" onClick={(e) => { toggleDiv(e, "displaysettings-div");}}>DISPLAY SETTINGS</Button>
+  
       <div id ="upload-div">
         {/* File selection */}
         <Form.Group controlId="formFile" className="mb-3">
@@ -597,11 +620,11 @@ export const LeftPanel = ({ width, height }) => {
         }}
       >
         <MenuItem onClick={(e) => { handleClose(e, "neurips");}}>NeurIPS 2022</MenuItem>
-        <MenuItem onClick={(e) => { handleClose(e, "rlhf");}}>RLHF Dataset</MenuItem>
-        <MenuItem onClick={(e) => { handleClose(e, "vispapers");}}>Vis Paper Abstracts</MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "restaurants");}}>Boston Health </MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "ag_news");}}>News</MenuItem>
+        <MenuItem onClick={(e) => { handleClose(e, "emotion");}}>Emotion</MenuItem>
       </Menu>
 
-      <Button  id="toggleButton3" class="btn btn-secondary btn-xs display-btn" onClick={(e) => { toggleDiv(e, "displaysettings-div");}}>DISPLAY SETTINGS</Button>
       <div id ="displaysettings-div">
       <div className="sliderBlock">
         <p>Opacity</p>
@@ -635,8 +658,14 @@ export const LeftPanel = ({ width, height }) => {
       <div>
       
       </div>
+      <hr/>
+      <div className="title">
+            <p>Dataset: </p><p id="dataset" class = "hidden"></p>
+          </div>
+
       <div className="sliderBlock">
-      <p>Few</p><Slider
+      Number of Clusters
+      <Slider
             aria-label="AutoCluster Number"
             valueLabelDisplay="auto"
             value={clusterThresholdDist}
@@ -645,8 +674,9 @@ export const LeftPanel = ({ width, height }) => {
             marks
             min={1}
             max={50}
-          /><p>  Many</p>
+          />
       </div>
+      <hr/>
       {/* <div className="submitButton">
         <Button
           size="sm"
@@ -660,7 +690,6 @@ export const LeftPanel = ({ width, height }) => {
       {renderKey()}
 
       
-
       </div>
   );
 };
