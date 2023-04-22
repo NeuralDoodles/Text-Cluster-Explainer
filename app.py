@@ -175,17 +175,17 @@ def color_by_cluster_threshold(): #pass json file from front to back and then co
         sentences = list(df_dr[cluster_pts]['label'])
         random.shuffle(sentences)
 
-        '''r = Rake(min_length=1, max_length=2,ranking_metric=Metric.WORD_FREQUENCY, include_repeated_phrases=False)
+        r = Rake(min_length=1, max_length=2,ranking_metric=Metric.WORD_FREQUENCY, include_repeated_phrases=False)
         
         r.extract_keywords_from_text(" ".join(sentences))
         
         wordlist = ", ".join(r.get_ranked_phrases()[:2])
-        df_dr.loc[cluster_pts, 'keywords'] =  wordlist'''
-    
+        df_dr.loc[cluster_pts, 'keywords'] =  wordlist
+        '''
 
         text = " ".join(sentences).split()[:5000]
 
-        openai.api_key ="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"
+        openai.api_key ="Key"
         completion = openai.ChatCompletion.create(
         #model="gpt-3.5-turbo", 
         model="gpt-4", 
@@ -194,7 +194,7 @@ def color_by_cluster_threshold(): #pass json file from front to back and then co
         reply_content = completion.choices[0].message.content
     
         print(reply_content)
-        df_dr.loc[cluster_pts, 'keywords'] = reply_content
+        df_dr.loc[cluster_pts, 'keywords'] = reply_content'''
         df_dr.loc[cluster_pts,'cluster_centers'] = str(list(kmeans.cluster_centers_[i]))
 
     #print(df_dr)
