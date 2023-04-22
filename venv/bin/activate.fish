@@ -29,7 +29,7 @@ end
 # Unset irrelevant variables.
 deactivate nondestructive
 
-set -gx VIRTUAL_ENV "/Users/bubird/Documents/GitHub/Cluster-Research/venv"
+set -gx VIRTUAL_ENV "/Users/Enako/Documents/research/Text-Cluster-Explainer/venv"
 
 set -gx _OLD_VIRTUAL_PATH $PATH
 set -gx PATH "$VIRTUAL_ENV/bin" $PATH

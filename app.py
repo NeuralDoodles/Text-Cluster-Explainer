@@ -5,14 +5,15 @@ from flask_restful import reqparse
 import pandas as pd
 import io
 import umap
-from openTSNE import TSNE
+# from umap.parametric_umap import ParametricUMAP
+# from openTSNE import TSNE
 from ast import literal_eval
 from sklearn.model_selection import train_test_split
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.svm import SVC
 import numpy as np
 import heapq
-import openai
+# import openai
 import json
 import pickle
 from nltk.tokenize import sent_tokenize
@@ -97,28 +98,30 @@ def data():
         df = df.drop(selectedCol, axis=1)
 
     # Check reduction method
-    if reductionMethod == "TSNE":
-        perplexity = args['perplexity']
-        #This performs dimensionality reduction, for now fixed perplexity but could be changed later
-        #X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = ['text']).values)
-        reducer = TSNE(
-                perplexity=perplexity ,
-                metric="euclidean",
-                n_jobs=8,
-                random_state=42,
-                verbose=True,)
-        X_embedded = reducer.fit(df.drop(columns = ['text']).values)
-        f_name = 'tsne_trained.sav'
-        pickle.dump(X_embedded, open(f_name, 'wb'))
+    # if reductionMethod == "TSNE":
+    #     perplexity = args['perplexity']
+    #     #This performs dimensionality reduction, for now fixed perplexity but could be changed later
+    #     #X_embedded = TSNE(n_components=2, perplexity=perplexity, verbose=True).fit_transform(df.drop(columns = ['text']).values)
+    #     reducer = TSNE(
+    #             perplexity=perplexity ,
+    #             metric="euclidean",
+    #             n_jobs=8,
+    #             random_state=42,
+    #             verbose=True,)
+    #     X_embedded = reducer.fit(df.drop(columns = ['text']).values)
+    #     f_name = 'tsne_trained.sav'
+    #     pickle.dump(X_embedded, open(f_name, 'wb'))
     
-    else:
+    # else:
+    if reductionMethod != "TSNE":
         f_name = 'umap_trained.sav'
 
         #reducer = umap.UMAP(n_components=2)
         #X_embedded = reducer.fit_transform(df.drop(columns = 'text').values)
         #trained model
         #pickle.dump(reducer, open(f_name, 'wb'))
-        embedder = ParametricUMAP(n_epochs = 1)
+        # embedder = ParametricUMAP(n_epochs = 1)
+        embedder = umap(n_epochs = 1)
         embedding = embedder.fit_transform(df.drop(columns = 'text').values)
         embedder.save('/hello.pkl')
 
